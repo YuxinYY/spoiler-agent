@@ -1,0 +1,12 @@
+﻿model:
+  model_id: Qwen/Qwen2-1.5B-Instruct
+  device_map: auto
+  dtype: auto
+
+generation:
+  max_new_tokens: 256
+  temperature: 0.1
+  top_p: 0.9
+
+thresholds:
+  hide_confidence: 0.8

@@ -1,0 +1,1 @@
+﻿"""Spoiler detection agent package."""

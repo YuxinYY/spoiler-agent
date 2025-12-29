@@ -1,0 +1,27 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.env
+.env.*
+
+# Tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Data and models
+data/raw/
+data/processed/
+data/splits/
+models/
+outputs/
+
+# OS
+.DS_Store
+Thumbs.db

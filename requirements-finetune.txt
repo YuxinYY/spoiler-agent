@@ -1,0 +1,3 @@
+﻿# Optional fine-tuning dependencies
+bitsandbytes
+trl
