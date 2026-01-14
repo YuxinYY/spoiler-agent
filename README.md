@@ -1,10 +1,10 @@
 ﻿# spoiler-agent
 An LLM based spoiler detector.
 
-## Example Links
+## Available Demo
 Explore the live demo and how the system behaves on real reviews.
 
-- Live demo: https://huggingface.co/spaces/Yoosine/spoiler-detector
+- Live demo: https://huggingface.co/spaces/Yoosine/spoiler-detector.
 
 ## Demo
 Paste a review URL and the app returns a processed version of the review. Spoiler spans are hidden, while the original wording remains readable.
@@ -35,7 +35,7 @@ Single text inference:
 python scripts\run_inference.py --text "The hero dies at the end to save the world." --content-type book
 ```
 
-Batch inference (JSONL):
+Batch inference (JSONL files):
 ```bash
 python scripts\run_inference.py --input data\splits\test.jsonl --output outputs\predictions.jsonl --text-field text
 ```
