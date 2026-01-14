@@ -1,7 +1,58 @@
 ﻿# spoiler-agent
-An LLM based story/game/books spoiler detection agent.
+An LLM based spoiler detector.
 
-基于LLM的剧透内容分类完整工作流（高可行性版）
+## Example Links
+Explore the live demo and how the system behaves on real reviews.
+
+- Live demo: https://huggingface.co/spaces/Yoosine/spoiler-detector
+
+## Demo
+Paste a review URL and the app returns a processed version of the review. Spoiler spans are hidden, while the original wording remains readable.
+
+### How to use the demo
+- Paste the review URL you want to check.
+- Submit and wait for the processed version.
+- Review the output with spoiler text covered.
+
+## Model
+The detector is powered by fine-tuned Llama 3 8B.
+
+- Fine-tuning: QLoRA with loss masking and long-text grouping.
+- Performance: F1 improved from 0.71 to 0.96.
+
+## Installation & Usage
+### Installation
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+pip install -e .
+```
+
+### Usage
+Single text inference:
+```bash
+python scripts\run_inference.py --text "The hero dies at the end to save the world." --content-type book
+```
+
+Batch inference (JSONL):
+```bash
+python scripts\run_inference.py --input data\splits\test.jsonl --output outputs\predictions.jsonl --text-field text
+```
+
+Serve an API:
+```bash
+python -m spoiler_agent.api
+```
+POST to `http://localhost:8000/predict_spoiler` with `{"text": "...", "content_type": "movie"}`.
+
+### Configuration
+- Set `MODEL_ID` in `.env` to point at your base model.
+- If the model is gated, set `HUGGINGFACE_HUB_TOKEN` or `HF_TOKEN`.
+
+## Detailed Workflow Notes (Chinese)
+
+<!-- 基于LLM的剧透内容分类完整工作流（高可行性版）
 
 核心目标：让论坛Agent能调用LLM精准识别小说/电影相关文本是否含剧透，输出结构化结果供网站做“隐藏/打标签”处理。工作流优先级：可行性 > 效果 > 复杂度，全程采用成熟工具（LangChain、Pydantic）和轻量化方案，降低开发门槛。
 
@@ -83,7 +134,7 @@ GPT-3.5 Turbo、通义千问Plus
 
 开源模型（低成本部署）
 
-Llama 2（7B）、Qwen-7B
+Llama 3（8B）
 
 免费商用，部署后无调用成本
 
@@ -154,7 +205,7 @@ print(result.model_dump())
         {"prompt":"判断文本是否含剧透：《庆余年》范闲其实是叶轻眉的儿子","completion":"{\"has_spoiler\":1,\"confidence\":0.99,\"spoiler_type\":\"小说\",\"key_spoiler_sentence\":\"《庆余年》范闲其实是叶轻眉的儿子\"}"}
 {"prompt":"判断文本是否含剧透：《哈利波特》画面很震撼","completion":"{\"has_spoiler\":0,\"confidence\":0.99,\"spoiler_type\":\"无\",\"key_spoiler_sentence\":\"无\"}"}
 
-- 开源模型（如Llama 2）：用JSON格式，包含text和label字段（适配Hugging Face的Trainer API）。
+- 开源模型（如Llama 3）：用JSON格式，包含text和label字段（适配Hugging Face的Trainer API）。
 
 2. 进阶微调技术与实施步骤（核心提升点，兼顾可行性与深度）
 
@@ -182,7 +233,7 @@ print(result.model_dump())
 - 新增损失：实体级对比损失，将文本中的“核心角色、关键事件”（如“甄嬛”“刘培强牺牲”）作为实体，计算剧透句与非剧透句的实体语义距离，强化模型对核心信息的敏感度。
 - 组合：总损失=0.7*交叉熵损失+0.3*实体级对比损失，让模型不仅判断“是否剧透”，还能理解“为何是剧透”。
 
-模型融合与验证：训练2个不同基座模型（Llama 2-7B、Qwen-7B），采用“加权投票”融合结果，提升稳定性。
+模型融合与验证：训练2个不同基座模型（Llama 3-8B），采用“加权投票”融合结果，提升稳定性。
 
 - 工具：直接用OpenAI/阿里云官方微调工具（无需手动搭环境）。
 
@@ -302,7 +353,7 @@ Agent最终拿到的结果含明确逻辑，可直接落地：
 - 训练策略：采用“FGSM对抗训练”，在训练中动态加入对抗样本，提升模型对规避性剧透的识别能力，这是纯调参方案无法实现的。
 
 - 实时性优化（适配论坛高并发）：
-- 模型蒸馏：用微调后的7B大模型作为教师模型，蒸馏到1.3B小模型（如Phi-2、Qwen-1.8B），推理速度提升3倍，显存占用降低70%。
+- 模型蒸馏：用微调后的7B大模型作为教师模型，蒸馏到1.3B小模型（如Phi-2、Llama 3.2 1B），推理速度提升3倍，显存占用降低70%。
 - 缓存策略：针对高频重复文本（如热门作品的经典剧透），采用“Redis+本地双重缓存”，缓存命中率≥30%，降低服务器压力。
 
 3. 可解释性与交互设计（提升项目落地价值）
@@ -367,7 +418,7 @@ Agent最终拿到的结果含明确逻辑，可直接落地：
 
 ## Implementation Scaffold
 
-This repo now includes runnable scaffolding for data prep, local Qwen inference, evaluation, fine-tuning, and an API.
+This repo now includes runnable scaffolding for data prep, local Llama inference, evaluation, fine-tuning, and an API.
 
 ### Layout
 - `src/spoiler_agent/`: schema, prompts, inference, evaluation, API
@@ -424,11 +475,13 @@ python scripts\fine_tune_qlora.py --input data\splits\train.jsonl --dataset-form
 If you already have `prompt` + `completion` JSONL, use `--dataset-format prompt_completion`.
 
 ### Notes
-- Default model is `Qwen/Qwen2-1.5B-Instruct` (set `MODEL_ID` in `.env`).
+- Default model is `meta-llama/Meta-Llama-3-8B-Instruct` (set `MODEL_ID` in `.env`).
 - For GPU usage, keep `DEVICE_MAP=auto` and use `DTYPE=bf16` or `DTYPE=fp16` if supported.
+- Llama 3 models are gated on Hugging Face; set `HUGGINGFACE_HUB_TOKEN` (or `HF_TOKEN`) to download.
 - If the model output is invalid JSON, the service defaults to `has_spoiler=0`.
 
 ### Client Example
 ```bash
 python scripts\client_example.py
 ```
+ -->
