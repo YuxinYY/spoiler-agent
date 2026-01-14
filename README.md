@@ -40,12 +40,6 @@ Batch inference (JSONL):
 python scripts\run_inference.py --input data\splits\test.jsonl --output outputs\predictions.jsonl --text-field text
 ```
 
-Serve an API:
-```bash
-python -m spoiler_agent.api
-```
-POST to `http://localhost:8000/predict_spoiler` with `{"text": "...", "content_type": "movie"}`.
-
 ### Configuration
 - Set `MODEL_ID` in `.env` to point at your base model.
 - If the model is gated, set `HUGGINGFACE_HUB_TOKEN` or `HF_TOKEN`.
