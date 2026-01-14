@@ -50,7 +50,7 @@ POST to `http://localhost:8000/predict_spoiler` with `{"text": "...", "content_t
 - Set `MODEL_ID` in `.env` to point at your base model.
 - If the model is gated, set `HUGGINGFACE_HUB_TOKEN` or `HF_TOKEN`.
 
-## Detailed Workflow Notes (Chinese)
+<!-- ## Detailed Workflow Notes (Chinese) -->
 
 <!-- 基于LLM的剧透内容分类完整工作流（高可行性版）
 
