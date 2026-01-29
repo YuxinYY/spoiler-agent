@@ -40,9 +40,7 @@ Batch inference (JSONL files):
 python scripts\run_inference.py --input data\splits\test.jsonl --output outputs\predictions.jsonl --text-field text
 ```
 
-### Configuration
-- Set `MODEL_ID` in `.env` to point at your base model.
-- If the model is gated, set `HUGGINGFACE_HUB_TOKEN` or `HF_TOKEN`.
+
 
 <!-- ## Detailed Workflow Notes (Chinese) -->
 
